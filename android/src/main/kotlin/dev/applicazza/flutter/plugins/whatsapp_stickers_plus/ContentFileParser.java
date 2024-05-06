@@ -77,6 +77,7 @@ class ContentFileParser {
         String licenseAgreementWebsite = null;
         String imageDataVersion = "";
         boolean avoidCache = false;
+        boolean animatedStickerPack = true;
         List<Sticker> stickerList = null;
         while (reader.hasNext()) {
             String key = reader.nextName();
@@ -141,7 +142,7 @@ class ContentFileParser {
         }
         reader.endObject();
         final StickerPack stickerPack = new StickerPack(identifier, name, publisher, trayImageFile, publisherEmail,
-                publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache);
+                publisherWebsite, privacyPolicyWebsite, licenseAgreementWebsite, imageDataVersion, avoidCache, animatedStickerPack);
         stickerPack.setStickers(stickerList);
         return stickerPack;
     }

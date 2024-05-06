@@ -84,6 +84,7 @@ Future installFromAssets() async {
     publisherWebsite: '',
     privacyPolicyWebsite: '',
     licenseAgreementWebsite: '',
+    animatedStickerPack: true,
   );
 
   stickers.forEach((sticker, emojis) {
@@ -124,6 +125,7 @@ Future installFromRemote() async {
     publisherWebsite: '',
     privacyPolicyWebsite: '',
     licenseAgreementWebsite: '',
+    animatedStickerPack: true,
   );
 
   stickers.forEach((sticker, emojis) {

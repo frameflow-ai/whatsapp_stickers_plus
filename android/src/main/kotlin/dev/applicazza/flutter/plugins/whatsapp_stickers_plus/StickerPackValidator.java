@@ -30,7 +30,7 @@ class StickerPackValidator {
     private static final int EMOJI_MIN_LIMIT = 1;
     private static final int IMAGE_HEIGHT = 512;
     private static final int IMAGE_WIDTH = 512;
-    private static final int STICKER_SIZE_MIN = 3;
+    private static final int STICKER_SIZE_MIN = 1;
     private static final int STICKER_SIZE_MAX = 30;
     private static final int CHAR_COUNT_MAX = 128;
     private static final long ONE_KIBIBYTE = 8 * 1024;
@@ -146,7 +146,7 @@ class StickerPackValidator {
         final List<Sticker> stickers = stickerPack.getStickers();
         if (stickers.size() < STICKER_SIZE_MIN || stickers.size() > STICKER_SIZE_MAX) {
             throw new InvalidPackException(InvalidPackException.OUTSIDE_ALLOWABLE_RANGE,
-                    "sticker pack sticker count should be between 3 to 30 inclusive, it currently has "
+                    "sticker pack sticker count should be between 1 to 30 inclusive, it currently has "
                             + stickers.size() + ", sticker pack identifier:" + stickerPack.identifier);
         }
         for (final Sticker sticker : stickers) {

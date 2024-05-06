@@ -8,10 +8,14 @@
 
 package dev.applicazza.flutter.plugins.whatsapp_stickers_plus;
 
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.RequiresApi;
+
 import java.util.List;
+import java.util.Objects;
 
 class Sticker implements Parcelable {
     final String imageFileName;
