@@ -65,6 +65,9 @@ class StickerPackManager {
                 packPrivacyPolicyWebsite = packPrivacyPolicyWebsite != "" ? packPrivacyPolicyWebsite : nil
                 packLicenseAgreementWebsite = packLicenseAgreementWebsite != "" ? packLicenseAgreementWebsite : nil
 
+                let animated = pack["animated"] as? Bool ?? false
+
+
                 // Pack identifier has to be a valid string and be unique
                 let packIdentifier: String? = pack["identifier"] as? String
                 if packIdentifier != nil && currentIdentifiers[packIdentifier!] == nil {
@@ -80,7 +83,7 @@ class StickerPackManager {
                 var stickerPack: StickerPack?
 
                 do {
-                   stickerPack = try StickerPack(identifier: packIdentifier!, name: packName, publisher: packPublisher, trayImageFileName: packTrayImageFileName, publisherWebsite: packPublisherWebsite, privacyPolicyWebsite: packPrivacyPolicyWebsite, licenseAgreementWebsite: packLicenseAgreementWebsite)
+                   stickerPack = try StickerPack(identifier: packIdentifier!, name: packName, publisher: packPublisher, trayImageFileName: packTrayImageFileName, publisherWebsite: packPublisherWebsite, privacyPolicyWebsite: packPrivacyPolicyWebsite, licenseAgreementWebsite: packLicenseAgreementWebsite, animatedStickerPack: animated)
                 } catch StickerPackError.fileNotFound {
                     fatalError("\(packTrayImageFileName) not found.")
                 } catch StickerPackError.emptyString {

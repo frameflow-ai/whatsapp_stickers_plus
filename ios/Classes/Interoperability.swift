@@ -8,6 +8,12 @@
 
 import UIKit
 
+enum InteroperabilityError: Error {
+    case DefaultBundleIdentifier
+	case CouldntSerialize
+	case CannotSend
+}
+
 struct Interoperability {
     private static let DefaultBundleIdentifier: String = "WA.WAStickersThirdParty"
     private static let PasteboardExpirationSeconds: TimeInterval = 60
@@ -21,9 +27,9 @@ struct Interoperability {
         return UIApplication.shared.canOpenURL(URL(string: "whatsapp://")!)
     }
     
-    static func send(json: [String: Any]) -> Bool {
+    static func send(json: [String: Any]) throws {
         if Bundle.main.bundleIdentifier?.contains(DefaultBundleIdentifier) == true {
-          fatalError("Your bundle identifier must not include the default one.")
+          throw InteroperabilityError.DefaultBundleIdentifier
         }
 
         let pasteboard = UIPasteboard.general
@@ -33,7 +39,7 @@ struct Interoperability {
         jsonWithAppStoreLink["android_play_store_link"] = AndroidStoreLink
 
         guard let dataToSend = try? JSONSerialization.data(withJSONObject: jsonWithAppStoreLink, options: []) else {
-            return false
+					throw InteroperabilityError.CouldntSerialize
         }
 
         if #available(iOS 10.0, *) {
@@ -41,7 +47,9 @@ struct Interoperability {
         } else {
             pasteboard.setData(dataToSend, forPasteboardType: PasteboardStickerPackDataType)
         }
-
+			if (!canSend()) {
+				throw InteroperabilityError.CannotSend
+			}
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             if canSend() {
                 if #available(iOS 10.0, *) {
@@ -50,8 +58,7 @@ struct Interoperability {
                     UIApplication.shared.openURL(WhatsAppURL)
                 }
             }
-        }
-        return true
+				}
     }
 
     static func copyImageToPasteboard(image: UIImage) {

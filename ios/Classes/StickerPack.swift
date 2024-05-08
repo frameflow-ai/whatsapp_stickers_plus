@@ -35,6 +35,7 @@ class StickerPack {
     let publisherWebsite: String?
     let privacyPolicyWebsite: String?
     let licenseAgreementWebsite: String?
+    let animated: Bool
 
     var stickers: [Sticker]
 
@@ -66,7 +67,7 @@ class StickerPack {
      - .incorrectImageSize if the tray image is not within the allowed size
      - .animatedImagesNotSupported if the tray image is animated
      */
-    init(identifier: String, name: String, publisher: String, trayImageFileName: String, publisherWebsite: String?, privacyPolicyWebsite: String?, licenseAgreementWebsite: String?) throws {
+    init(identifier: String, name: String, publisher: String, trayImageFileName: String, publisherWebsite: String?, privacyPolicyWebsite: String?, licenseAgreementWebsite: String?, animatedStickerPack: Bool) throws {
         guard !name.isEmpty && !publisher.isEmpty && !identifier.isEmpty else {
             throw StickerPackError.emptyString
         }
@@ -87,6 +88,7 @@ class StickerPack {
         self.publisherWebsite = publisherWebsite
         self.privacyPolicyWebsite = privacyPolicyWebsite
         self.licenseAgreementWebsite = licenseAgreementWebsite
+        self.animated = animatedStickerPack
     }
 
     /**
@@ -107,7 +109,7 @@ class StickerPack {
      - .incorrectImageSize if the tray image is not within the allowed size
      - .animatedImagesNotSupported if the tray image is animated
      */
-    init(identifier: String, name: String, publisher: String, trayImagePNGData: Data, publisherWebsite: String?, privacyPolicyWebsite: String?, licenseAgreementWebsite: String?) throws {
+    init(identifier: String, name: String, publisher: String, trayImagePNGData: Data, publisherWebsite: String?, privacyPolicyWebsite: String?, licenseAgreementWebsite: String?, animatedStickerPack: Bool) throws {
         guard !name.isEmpty && !publisher.isEmpty && !identifier.isEmpty else {
             throw StickerPackError.emptyString
         }
@@ -128,6 +130,7 @@ class StickerPack {
         self.publisherWebsite = publisherWebsite
         self.privacyPolicyWebsite = privacyPolicyWebsite
         self.licenseAgreementWebsite = licenseAgreementWebsite
+        self.animated = animatedStickerPack
     }
 
     /**
@@ -177,14 +180,20 @@ class StickerPack {
      *  - Parameter completionHandler: block that gets called when the sticker pack has been wrapped
      *    into a format that WhatsApp can read and WhatsApp is about to open. Called on the main
      *    queue.
+     *
+     * - Throws:
+     - InteroperabilityError.cantSend if the sticker pack can't be sent to WhatsApp.
      */
-    func sendToWhatsApp(completionHandler: @escaping (Bool) -> Void) {
+    func sendToWhatsApp(completionHandler: @escaping (Error?) -> Void) {
         StickerPackManager.queue.async {
             var json: [String: Any] = [:]
             json["identifier"] = self.identifier
             json["name"] = self.name
             json["publisher"] = self.publisher
             json["tray_image"] = self.trayImage.image!.pngData()?.base64EncodedString()
+            if self.animated {
+                json["animated_sticker_pack"] = self.animated
+            }
 
             var stickersArray: [[String: Any]] = []
             for sticker in self.stickers {
@@ -202,10 +211,17 @@ class StickerPack {
             }
             json["stickers"] = stickersArray
 
-            let result = Interoperability.send(json: json)
-            DispatchQueue.main.async {
-                completionHandler(result)
-            }
+					do {
+						try Interoperability.send(json: json)
+						DispatchQueue.main.async {
+							completionHandler(nil)
+						}
+					} catch {
+						DispatchQueue.main.async {
+							completionHandler(error)
+						}
+					}
+            
         }
     }
 }

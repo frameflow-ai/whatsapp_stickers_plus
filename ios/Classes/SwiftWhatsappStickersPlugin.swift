@@ -50,6 +50,10 @@ public class SwiftWhatsappStickersPlugin: NSObject, FlutterPlugin {
         let publisherWebsite = arguments["publisherWebsite"] as? String
         let privacyPolicyWebsite = arguments["privacyPolicyWebsite"] as? String
         let licenseAgreementWebsite = arguments["licenseAgreementWebsite"] as? String
+        guard let animatedStickerPack = arguments["animatedStickerPack"] as? Bool else {
+            result(FlutterError(code: "INVALID_ANIMATED_STICKER_PACK", message: "Invalid animated sticker pack", details: nil))
+            return
+        }
         
         var stickerPack: StickerPack?
         
@@ -60,7 +64,8 @@ public class SwiftWhatsappStickersPlugin: NSObject, FlutterPlugin {
                                           trayImageFileName: locateFile(atPath: trayImageFileName),
                                           publisherWebsite: publisherWebsite,
                                           privacyPolicyWebsite: privacyPolicyWebsite,
-                                          licenseAgreementWebsite: licenseAgreementWebsite)
+                                          licenseAgreementWebsite: licenseAgreementWebsite,
+                                          animatedStickerPack: animatedStickerPack)
             
         } catch StickerPackError.fileNotFound {
             result(FlutterError(code: "FILE_NOT_FOUND", message: "\(trayImageFileName) not found.", details: nil))
@@ -122,10 +127,29 @@ public class SwiftWhatsappStickersPlugin: NSObject, FlutterPlugin {
                 return
             }
         }
-            
+
         stickerPack!.sendToWhatsApp {
-            completed in
-            result(true)
+            err in
+					if err != nil {
+						do {
+							try {
+								throw err!
+							}()
+						} catch InteroperabilityError.DefaultBundleIdentifier {
+								result(FlutterError(code: "INVALID_BUNDLE_ID", message: "You need to change your bundle identifier to a non-default one", details: nil))
+							return
+						} catch InteroperabilityError.CannotSend {
+							result(FlutterError(code: "CANNOT_SEND", message: "Cannot open the whatsapp url to send the stickerpack. This is likely due to a permission misconfiguration", details: nil))
+							return
+						}
+						catch InteroperabilityError.CouldntSerialize {
+							result(FlutterError(code: "CANT_SERIALIZE", message: "Failed to serialize your json payload", details: nil))
+							return
+						} catch {
+							result(FlutterError(code: "GENERAL_ERROR", message: error.localizedDescription, details: nil))
+							return
+						}
+					}
         }
     }
     
