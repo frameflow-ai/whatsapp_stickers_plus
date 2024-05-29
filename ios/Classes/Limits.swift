@@ -15,7 +15,7 @@ struct Limits {
     static let TrayImageDimensions: CGSize = CGSize(width: 96, height: 96)
     static let ImageDimensions: CGSize = CGSize(width: 512, height: 512)
 
-    static let MinStickersPerPack: Int = 3
+    static let MinStickersPerPack: Int = 1
     static let MaxStickersPerPack: Int = 30
 
     static let MaxCharLimit128: Int = 128
